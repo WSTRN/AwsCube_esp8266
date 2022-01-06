@@ -11,15 +11,17 @@
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
+//#include <ArduinoHttpClient.h>
 
 using namespace std;
 
 WiFiManager wifiManager;
 String NTPApi = "http://quan.suning.com/getSysTime.do";
-String WeatherApi = "https://api.seniverse.com/v3/weather/daily.json?key=SHyKztGdAomYp5BNL&location=ip&language=en&unit=c&start=0&days=5";
+String WeatherApi = "http://api.seniverse.com/v3/weather/daily.json?key=SHyKztGdAomYp5BNL&location=ip&language=en&unit=c&start=0&days=5";
 char json_o[6000] =  {0};
 StaticJsonDocument<2000> doc;
 HTTPClient httpclient;
+WiFiClient wifi;
 int httpclientCode;
 
 String Split(String data, const char* separator, int index)
@@ -105,9 +107,10 @@ static uint8_t checkerr[]={0x55,0x66,0x5f,0x66,0x55,0x00};
 void setup() {
 	//wifiManager.setTimeout(10);
 	wifiManager.autoConnect("AwsCubeAP");
-	//Serial.println("connected...yeey :)");
-	httpclient.begin(NTPApi);
+	Serial.println("connected...yeey :)");
+	httpclient.begin(wifi,NTPApi);
 	httpclient.GET();
+	httpclient.end();
 	Serial.begin(115200);
 }
 
@@ -118,7 +121,8 @@ void loop() {
     {
     case 0:
     	tag=0x00;
-		httpclient.begin(NTPApi);
+		httpclient.begin(wifi,NTPApi);
+		//Serial.println("connected...yeey :)");
 		httpclientCode=httpclient.GET();
 		if(httpclientCode==HTTP_CODE_OK)
 		{
@@ -128,10 +132,11 @@ void loop() {
 		{
 			UARTSendPKG(&tag,checkerr,checkerr+1,checkerr+2,checkerr+3,checkerr+4,checkerr+5);
 		}
+		httpclient.end();
 		break;
 	case 1:
 		tag=0x01;
-		httpclient.begin(NTPApi);
+		httpclient.begin(wifi,NTPApi);
 		httpclientCode=httpclient.GET();
 		if(httpclientCode==HTTP_CODE_OK)
 		{
@@ -155,10 +160,11 @@ void loop() {
 		{
 			UARTSendPKG(&tag,checkerr,checkerr+1,checkerr+2,checkerr+3,checkerr+4,checkerr+5);
 		}
+		httpclient.end();
 		break;
 	case 2:
 		tag=0x02;
-		httpclient.begin(WeatherApi);
+		httpclient.begin(wifi,WeatherApi);
 		httpclientCode=httpclient.GET();
 		if(httpclientCode==HTTP_CODE_OK)
 		{
@@ -180,10 +186,11 @@ void loop() {
 		{
 			UARTSendPKG(&tag,checkerr,checkerr+1,checkerr+2,checkerr+3,checkerr+4,checkerr+5);
 		}
+		httpclient.end();
 		break;
 	case 3:
 		tag=0x03;
-		httpclient.begin(WeatherApi);
+		httpclient.begin(wifi,WeatherApi);
 		httpclientCode=httpclient.GET();
 		if(httpclientCode==HTTP_CODE_OK)
 		{
@@ -205,10 +212,11 @@ void loop() {
 		{
 			UARTSendPKG(&tag,checkerr,checkerr+1,checkerr+2,checkerr+3,checkerr+4,checkerr+5);
 		}
+		httpclient.end();
 		break;
 	case 4:
 		tag=0x04;
-		httpclient.begin(WeatherApi);
+		httpclient.begin(wifi,WeatherApi);
 		httpclientCode=httpclient.GET();
 		if(httpclientCode==HTTP_CODE_OK)
 		{
@@ -230,6 +238,7 @@ void loop() {
 		{
 			UARTSendPKG(&tag,checkerr,checkerr+1,checkerr+2,checkerr+3,checkerr+4,checkerr+5);
 		}
+		httpclient.end();
 		break;
 	case 0xff:
 		break;
